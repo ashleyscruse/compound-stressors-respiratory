@@ -38,7 +38,7 @@ A chronological record of the concrete steps taken to execute this project, orga
 
 - [x] **Confirm county FIPS is consistently 5-digit string (or convertible) across every source pulled.** Verified using Appling County, GA (FIPS 13001) as anchor: PLACES `LocationID = 13001`, WONDER `County Code = 13001`, Census ACS `state=13 + county=001 → 13001`, EPA AQS `state_code=13 + county_code=NNN → 13NNN` (all 3-digit zero-padded county codes). EPA EJScreen requires 12-to-5-digit truncation. NOAA GSOD requires spatial join. CDC Tracking Network requires 20K MPA crosswalk. **All FIPS-keyed sources align cleanly; non-FIPS sources have documented join strategies.**
 - [x] **Confirm column names in each pulled file match what's documented in `internal-spec.md`.** Confirmed for all sources. CDC Tracking Network needed re-mapping from "indicator/measure" terminology to specific measure IDs (902 for asthma ED visits at 20K MPA, annual, age-adjusted) — this should be added to the spec.
-- [ ] **Update `internal-spec.md`** with corrections: (1) CDC Tracking Network registration is by email to `nephtrackingsupport@cdc.gov`, not via the URL listed; (2) PLACES coverage is 2022-2023 only, not 2018-2022; (3) EPA EJScreen primary URL is dead, use Zenodo backup; (4) CDC Tracking Network ED visits available only at 20K MPA geography, not direct county FIPS.
+- [x] **Update `internal-spec.md`** with corrections: (1) CDC Tracking Network registration is by email to `nephtrackingsupport@cdc.gov`, not via the URL listed; (2) PLACES coverage is 2022-2023 only, not 2018-2022; (3) EPA EJScreen primary URL is dead, use Zenodo backup; (4) CDC Tracking Network ED visits available only at 20K MPA geography, not direct county FIPS. **Done 2026-04-29.**
 
 ### Hard line check
 

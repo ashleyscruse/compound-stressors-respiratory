@@ -91,13 +91,17 @@ County-level mortality counts by ICD-10 code.
 
 ### 4. CDC Environmental Public Health Tracking Network (Health Outcomes: ER Visits)
 
-This is the stronger outcome variable if accessible. Tracks asthma ED visits and hospitalizations at state and county level.
+This is the stronger outcome variable if accessible. Tracks asthma ED visits and hospitalizations.
 
 **API base:** `https://ephtracking.cdc.gov/apigateway/api/v1/`
 
-**Registration:** `https://ephtracking.cdc.gov/apigateway/api/v1/register`
+**Registration:** Token is **optional**, not required. Most endpoints work without one. To request a token for expanded access, email `nephtrackingsupport@cdc.gov`. The token, if obtained, is passed as `?apiToken=TOKEN` on each call.
 
-**Status:** Requires API token registration. Check availability before the workshop. If accessible, use this instead of WONDER for the outcome variable.
+**Hierarchy:** Content Areas → Indicators → Measures. Asthma is content area `3`; "Emergency Department Visits For Asthma" is indicator `90`; the strongest annual age-adjusted measure is `902`.
+
+**Geography (verified 2026-04-29):** asthma ED visit data is published only at "20K Minimum Population Area" geography (`geographicTypeId: 12`), **not direct county FIPS**. CDC aggregates counties under 20,000 population into composite units to meet privacy thresholds. Using ED visits as the primary outcome requires either (a) running the analysis at 20K MPA resolution and aggregating exposure data up via crosswalk, or (b) accepting that the ED-visit signal cannot be joined to standard county FIPS without lossy approximation.
+
+**Reference:** API user guide PDF at https://ephtracking.cdc.gov/apihelp (download from "Related Documents → User Guide"). Stored locally in `references/cdc-api-user-guide.pdf` (gitignored).
 
 ### 5. CDC PLACES (Chronic Disease Prevalence)
 
@@ -107,15 +111,17 @@ Model-based prevalence estimates at county and tract level.
 
 **Tract-level download:** `https://data.cdc.gov/api/views/cwsq-ngmh/rows.csv?accessType=DOWNLOAD`
 
-**Relevant measures:**
+**Relevant measures (verified present 2026-04-29):**
 - Current asthma among adults (prevalence)
-- COPD among adults (prevalence)
+- Chronic obstructive pulmonary disease among adults (prevalence)
 - Current cigarette smoking among adults
 - Obesity among adults
 - Lack of health insurance among adults 18-64
 - No leisure-time physical activity among adults
 
 **Join key:** LocationID = 5-digit county FIPS
+
+**Temporal coverage caveat (verified 2026-04-29):** the current PLACES county-level dataset contains years **2022 and 2023 only**, not the full 2018-2022 window this spec was originally built around. PLACES is a model-based estimate produced by smoothing multiple years of underlying BRFSS data, so each "year" already represents a multi-year window. PLACES is suitable as a cross-sectional or covariate input but is **too thin to serve as the primary outcome variable for a year-by-year compound-exposure panel**.
 
 ### 6. Census ACS (Demographics)
 
@@ -145,9 +151,9 @@ https://api.census.gov/data/2022/acs/acs5?get=NAME,B17001_001E,B17001_002E,B1901
 
 ### 7. EPA EJScreen (Environmental Justice)
 
-**Download:** `https://gaftp.epa.gov/EJScreen/` (check availability, EPA restructures URLs periodically)
+**Download (verified 2026-04-29):** the EPA primary URL `https://gaftp.epa.gov/EJScreen/` is **dead (404)**. Use the Zenodo archive instead.
 
-**Alternative archive:** `https://zenodo.org/records/14767363`
+**Canonical source:** `https://zenodo.org/records/14767363` — yearly zips for 2015-2024 (1-6 GB per year), plus the EJScreen Tech Doc PDF (788 KB; saved locally to `references/ejscreen-tech-doc.pdf`, gitignored).
 
 **Format:** CSV and Geodatabase at Census block group level
 
@@ -259,10 +265,25 @@ Each step is a Tapis job submitted via tapipy or the Morehouse tenant UI.
 
 ## Project TODOs
 
-- [ ] Register for CDC Tracking Network API token (best outcome variable)
-- [ ] Register for EPA AQS API key
-- [ ] Register for Census API key (optional, bulk download works too)
+**Stage 1 (Ideation) — closed 2026-04-29:**
+
+- [x] Register for EPA AQS API key
+- [x] Register for Census API key
+- [x] Confirm CDC Tracking Network access (token optional, no registration form needed)
+- [x] Smoke test all seven data sources for viability
+- [x] Verify cross-source FIPS consistency
+
+**Stage 2 (Design) — open:**
+
 - [ ] Decide geographic scope (specific region vs. national)
-- [ ] Download all datasets and test the join pipeline
+- [ ] Decide primary outcome variable + matching geography (CDC Tracking Network ED visits at 20K MPA, CDC PLACES asthma prevalence at county FIPS, or CDC WONDER respiratory mortality at county FIPS)
+- [ ] Confirm time window (2018-2024 now feasible since CDC WONDER 2018-2024 dataset is available)
+- [ ] Document the full data join pipeline and the spatial join method for NOAA GSOD
+- [ ] Document feature engineering plan including compound exposure thresholds
+- [ ] Decide which HPC system to use and estimate compute/storage requirements
+
+**Stage 3 (Compute) and beyond:**
+
+- [ ] Download all datasets and build the join pipeline
 - [ ] Build and test the full notebook on the chosen HPC system
 - [ ] Run the models and confirm results support the hypothesis
