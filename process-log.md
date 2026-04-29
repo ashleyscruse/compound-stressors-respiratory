@@ -59,6 +59,10 @@ Process observations worth flagging for the case study:
 - **EPA AQS authentication** echoes the API key back in the response URL — don't paste raw responses into anything public. The local file is in `data/raw/_smoke_tests/` which is gitignored.
 - **CDC API user guide PDF** (downloaded to `references/`, gitignored) was essential for understanding the Content Area → Indicator → Measure hierarchy. Worth surfacing this dependency in workshop materials.
 
+**2026-04-29 (Stage 2 entry, additional Stage 1 finding):**
+
+- **Smoke testing API hierarchy was insufficient — needed to also smoke-test geographic coverage.** When checking CDC Tracking Network asthma ED visits, the Stage 1 smoke test confirmed the API works, the indicator exists, and the measures are at 20K MPA geography. It did NOT check which states actually publish data for that measure. Querying `geographicItems/902/12/0` revealed the data covers only 8 states (CT, MI, MO, OR, TN, UT, VT, WI). This is a state-grant artifact: only CDC Tracking Network grantee states submit ED data. **Lesson for the framework: Stage 1 smoke tests should verify geographic and temporal coverage of the actual data, not just the API surface area.**
+
 ---
 
 ## Stage 2: Design
@@ -67,9 +71,9 @@ Process observations worth flagging for the case study:
 
 ### Open decisions
 
-- [ ] Geographic scope: regional (e.g., Southeast US, ~4 states) vs. national
-- [ ] **Primary outcome variable + matching geography:** options are (a) CDC Tracking Network asthma ED visits at "20K Minimum Population Area" (annual, age-adjusted, requires aggregating exposure data up from county FIPS to MPA via crosswalk), (b) CDC PLACES asthma prevalence at county FIPS (cleaner pipeline but a stock measure, less responsive to short-term compound exposure events), or (c) CDC WONDER respiratory mortality at county FIPS (long-term signal but rare events with suppression). This decision drives the geographic resolution of the entire pipeline.
-- [ ] Time window: confirm 2018-2022 (5 years) is the right period given data coverage and the working from home / pandemic-era caveats
+- [x] **Primary outcome variable + matching geography (decided 2026-04-29):** **Two-pipeline design.** Primary analysis uses CDC WONDER respiratory mortality (J00-J98) at county FIPS, national, 2018-2024. Secondary triangulation analysis uses CDC Tracking Network asthma ED visits (measure 902) at 20K MPA across the 8 states with available data (CT, MI, MO, OR, TN, UT, VT, WI). Same compound-exposure features feed both pipelines. Paper structure: primary mortality result + ED-visit triangulation showing the same pattern holds for acute events where observable. Decision rationale: the 8-state limitation on Tracking Network ED visits made option A non-viable as a standalone national study, but the data is too valuable to discard entirely. CDC PLACES becomes a supplementary cross-sectional comparator if useful.
+- [x] **Geographic scope (decided implicitly by outcome decision):** national for primary mortality analysis (~3,143 counties); 8 states for secondary ED-visit analysis (~1,174 MPAs).
+- [ ] **Time window:** confirm 2018-2024 (7 years, the full WONDER + Tracking Network coverage available) versus the original spec's 2018-2022. Wider window gives more statistical power for compound exposure events but spans more pandemic-era distortion.
 
 ### Pipeline plan
 

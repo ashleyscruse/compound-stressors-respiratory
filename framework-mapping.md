@@ -48,6 +48,9 @@ Recorded as they emerge. Each entry: stage, observation, recommendation for the 
 **Observation 1.3 — "Process log" works as a case-study artifact.** Capturing decisions, friction points, and smoke-test outputs in real time produced a usable case-study record without retroactive reconstruction.
 **Recommendation for the framework:** add `process-log.md` (or equivalent) to the Stage 1 deliverables list, alongside the existing one-page research brief.
 
+**Observation 1.4 — Smoke tests must check geographic + temporal coverage, not just API surface.** Discovered at Stage 2 entry: the Stage 1 smoke test for CDC Tracking Network confirmed API access and asthma ED visit measures exist, but did not verify which states publish data. The actual coverage is only 8 grantee states, not national. This is a structural data limitation that drove a major design decision (two-pipeline approach instead of single national ED-visit study).
+**Recommendation for the framework:** Stage 1 smoke test checklist should explicitly include "Verify the geographic and temporal scope of available data for each measure, not just that the API responds." A two-line query against the geographicItems endpoint would have surfaced this constraint at Stage 1 instead of Stage 2.
+
 ### Stage 2 (Design)
 
 _(none yet)_
