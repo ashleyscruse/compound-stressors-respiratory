@@ -257,23 +257,12 @@ Each step is a Tapis job submitted via tapipy or the Morehouse tenant UI.
 
 ---
 
-## How This Maps to the Training Week
-
-| Day | Example Workflow Role | Participant Activity |
-|---|---|---|
-| Day 1 | Walk through the finished project end to end: question, data, pipeline, model, results | Define their own research question, identify datasets, start literature review |
-| Day 2 | Show how each step was executed on Vista via Tapis | Replicate parts of the pipeline, learn Tapis job submission, get their data onto Vista |
-| Days 3-5 | Reference as a template | Apply the same process to their own research projects with support |
-
----
-
-## TODO Before the Workshop
+## Project TODOs
 
 - [ ] Register for CDC Tracking Network API token (best outcome variable)
 - [ ] Register for EPA AQS API key
 - [ ] Register for Census API key (optional, bulk download works too)
-- [ ] Download all datasets and test the join pipeline
-- [ ] Build and test the full notebook on Vista
 - [ ] Decide geographic scope (specific region vs. national)
-- [ ] Run the models and confirm results are worth writing about
-- [ ] Prepare the Day 1 walkthrough presentation
+- [ ] Download all datasets and test the join pipeline
+- [ ] Build and test the full notebook on the chosen HPC system
+- [ ] Run the models and confirm results support the hypothesis
