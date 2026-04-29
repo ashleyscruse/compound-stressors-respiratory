@@ -19,38 +19,43 @@ A chronological record of the concrete steps taken to execute this project, orga
 
 - [x] EPA AQS API key — register by visiting `https://aqs.epa.gov/data/api/signup?email=YOUR_EMAIL` (the email must be a URL parameter, not a form field; key arrives by email within ~1 minute). **Done 2026-04-29; key stored in local `.env` (not committed).**
 - [x] CDC Tracking Network API token — **token is OPTIONAL, not required.** No web registration form. Email `nephtrackingsupport@cdc.gov` to request a token if expanded access is needed later. Spec doc had this wrong.
-- [ ] Census API key — register at https://api.census.gov/data/key_signup.html
+- [x] Census API key — register at https://api.census.gov/data/key_signup.html. **Done 2026-04-29; key stored in local `.env` (not committed). Issued within minutes via email.**
 
 ### Smoke tests for keyless sources
 
-- [ ] NOAA GSOD: pull one station for one year from `s3://noaa-global-summary-of-the-day-pds/`; confirm columns match spec
-- [ ] CDC PLACES: download county-level CSV from https://data.cdc.gov/api/views/swc5-untb/rows.csv?accessType=DOWNLOAD; verify LocationID is 5-digit FIPS
-- [ ] CDC WONDER: run one test query at https://wonder.cdc.gov for respiratory mortality (J00-J99), one state, one year; save the CSV
-- [ ] EPA EJScreen: download a sample from https://gaftp.epa.gov/EJScreen/ (or Zenodo backup at https://zenodo.org/records/14767363); confirm block group FIPS is present
+- [x] **NOAA GSOD**: pulled Atlanta Hartsfield station, full year 2022, via HTTPS direct download (96 KB CSV, 365 daily rows). All required columns present: TEMP, DEWP, MAX, MIN, PRCP, plus station lat/lon. **No FIPS in file** — spatial join (station to county centroid) required as spec anticipated.
+- [x] **CDC PLACES**: downloaded county-level CSV (51 MB). Asthma + COPD measures present ("Current asthma among adults", "Chronic obstructive pulmonary disease among adults"). LocationID is 5-digit county FIPS as spec said. **Major caveat:** only 2022 and 2023 are in the dataset, not the full 2018-2022 window the spec assumed. PLACES is a model-based estimate with smoothed multi-year inputs; fine for cross-sectional analysis, thin for a year-by-year temporal panel. **Stage 2 decision: keep PLACES as a covariate or upgrade primary outcome strategy.**
+- [x] **CDC WONDER**: query for Georgia, 2022, J00-J98 (Diseases of the respiratory system), grouped by County. Returned 137 of 159 GA counties (86%); 22 small counties suppressed by the 9-or-fewer rule. Format: tab-separated text with `.xls` extension. Has County Code (5-digit FIPS), Deaths, Population, Crude Rate, 95% CI. Suppression manageable for J00-J98 at one year; aggregating across multiple years closes most gaps.
+- [x] **EPA EJScreen**: primary EPA URL (`gaftp.epa.gov/EJScreen/`) returned 404 — confirmed dead, as spec warned. **Zenodo backup at https://zenodo.org/records/14767363 is the live source.** Years 2018-2022 all available (1.6-3.5 GB each). Tech doc (788 KB) downloaded to `references/` for column reference. Format: CSV/GDB at block group level (242,336 block groups for 50 states + DC + PR), built from 2022 Census TIGER/Line. Block group FIPS (12-digit) needs to be truncated to 5-digit county FIPS and aggregated for our analysis.
 
 ### Smoke tests for keyed sources (run after keys arrive)
 
-- [ ] EPA AQS API: one daily call for PM2.5, one state, one date; verify response shape
-- [x] CDC Tracking Network: one query for asthma ED visits, one state; verify response and check whether county-level data is exposed. **Done 2026-04-29.** Findings: API reachable without token; asthma ED visits available (indicator 90, measure 902); **only at "20K Minimum Population Area" geography, not standard county FIPS** (CDC privacy aggregation). Decision to make in Stage 2: keep ED visits as primary outcome and aggregate exposure data to 20K MPA, or switch primary outcome to CDC PLACES asthma prevalence (county FIPS).
-- [ ] Census ACS API: one call for population and poverty rate, one state; verify FIPS structure
+- [x] **EPA AQS API**: PM2.5 (parameter 88101) for Georgia (state 13) on 2022-07-15. Status: Success. 289 records (one row per monitor-day across all GA monitoring sites). Each record has `state_code` + `county_code` (3-digit zero-padded), daily `arithmetic_mean`, `first_max_value`, lat/lon, sometimes `aqi`. **Subtlety:** multiple monitors and POCs (Parameter Occurrence Codes) per county; Stage 3 must aggregate to county-day. AQI field is null for some daily-mean records.
+- [x] **CDC Tracking Network**: one query for asthma ED visits, one state; verify response and check whether county-level data is exposed. **Done 2026-04-29.** Findings: API reachable without token; asthma ED visits available (indicator 90, measure 902); **only at "20K Minimum Population Area" geography, not standard county FIPS** (CDC privacy aggregation). Decision to make in Stage 2: keep ED visits as primary outcome and aggregate exposure data to 20K MPA, or switch primary outcome to CDC PLACES asthma prevalence (county FIPS).
+- [x] **Census ACS API**: 2022 5-year estimates, all GA counties, variables NAME + B01001_001E (population) + B17001_001E/_002E (poverty universe + below) + B19013_001E (median income). 159 of 159 counties returned (100%, no suppression at county level). State + county fields concatenate cleanly to 5-digit FIPS (state=13, county=001 → 13001). Sanity check: Appling County population 18,441 here vs 18,428 in WONDER — same order of magnitude (5-yr ACS estimate vs single-year WONDER estimate; slight differences are expected).
 
 ### Cross-source verification
 
-- [ ] Confirm county FIPS is consistently 5-digit string (or convertible) across every source pulled
-- [ ] Confirm column names in each pulled file match what's documented in `internal-spec.md`
-- [ ] Update `internal-spec.md` if any source has changed format since the spec was written
+- [x] **Confirm county FIPS is consistently 5-digit string (or convertible) across every source pulled.** Verified using Appling County, GA (FIPS 13001) as anchor: PLACES `LocationID = 13001`, WONDER `County Code = 13001`, Census ACS `state=13 + county=001 → 13001`, EPA AQS `state_code=13 + county_code=NNN → 13NNN` (all 3-digit zero-padded county codes). EPA EJScreen requires 12-to-5-digit truncation. NOAA GSOD requires spatial join. CDC Tracking Network requires 20K MPA crosswalk. **All FIPS-keyed sources align cleanly; non-FIPS sources have documented join strategies.**
+- [x] **Confirm column names in each pulled file match what's documented in `internal-spec.md`.** Confirmed for all sources. CDC Tracking Network needed re-mapping from "indicator/measure" terminology to specific measure IDs (902 for asthma ED visits at 20K MPA, annual, age-adjusted) — this should be added to the spec.
+- [ ] **Update `internal-spec.md`** with corrections: (1) CDC Tracking Network registration is by email to `nephtrackingsupport@cdc.gov`, not via the URL listed; (2) PLACES coverage is 2022-2023 only, not 2018-2022; (3) EPA EJScreen primary URL is dead, use Zenodo backup; (4) CDC Tracking Network ED visits available only at 20K MPA geography, not direct county FIPS.
 
 ### Hard line check
 
-- [ ] All four Stage 1 deliverables confirmed: gap, data viability, target venue, research question
+- [x] **All four Stage 1 deliverables confirmed:** (1) Gap — multi-stressor compound exposure modeling is rare in published literature; (2) Data viability — all 7 sources reachable, all FIPS encodings consistent, all required variables present; (3) Target venue — list of journals and conferences in `internal-spec.md`; (4) Research question — single-sentence formulation in `README.md`. **Stage 1 is closed; Stage 2 (Design) is open.**
 
 **Notes:**
 
-**2026-04-29:**
-- EPA AQS registration: signup endpoint requires email as URL query parameter, not a form field. Spec doc (`?email=YOUR_EMAIL`) was correct format but I almost missed it. Updated process-log to be explicit.
-- CDC Tracking Network registration: the URL listed in the spec (`https://ephtracking.cdc.gov/apigateway/api/v1/register`) is actually an API endpoint, not a registration form. Hitting it returned a 400. Real path: token is OPTIONAL (most endpoints work without it), and to request one you email `nephtrackingsupport@cdc.gov`. Spec needs updating.
-- CDC Tracking Network smoke test: API reachable, asthma ED visits exposed, but only at "20K Minimum Population Area" — not standard county FIPS. CDC privacy aggregation. This is a Stage 2 decision point captured in Stage 2 Open Decisions.
-- Found CDC API user guide PDF (downloaded to `references/`, gitignored). Indispensable for understanding the Content Area → Indicator → Measure hierarchy.
+**2026-04-29 (full Stage 1 closeout in one session):**
+
+Process observations worth flagging for the case study:
+
+- **Spec accuracy mattered.** Of 7 sources documented in the spec, 4 had inaccuracies that only surfaced during smoke testing: CDC Tracking Network registration URL was actually the API endpoint (not a form), PLACES temporal coverage was overstated, EPA EJScreen primary URL was dead, and CDC Tracking Network's geography wasn't standard county FIPS. None blocked the project, but all of them would have wasted time at Stage 3 if discovered then. **Lesson for the framework: the Stage 1 hard line on "viable data" must mean "smoke-tested," not "documented."**
+- **Smoke tests are cheap.** Total time for all 7 sources was under 2 hours. The cost of NOT doing them is days of Stage 3 backtracking.
+- **CDC's 9-or-fewer suppression** affects WONDER (lost 22 of 159 GA counties for one year), making multi-year aggregation likely necessary for small-county coverage.
+- **CDC Tracking Network's 20K MPA geography** is the most consequential finding. It forces a Stage 2 decision: keep the strongest outcome (ED visits) and aggregate exposure data up, or switch primary outcome to keep the cleaner county-FIPS pipeline.
+- **EPA AQS authentication** echoes the API key back in the response URL — don't paste raw responses into anything public. The local file is in `data/raw/_smoke_tests/` which is gitignored.
+- **CDC API user guide PDF** (downloaded to `references/`, gitignored) was essential for understanding the Content Area → Indicator → Measure hierarchy. Worth surfacing this dependency in workshop materials.
 
 ---
 

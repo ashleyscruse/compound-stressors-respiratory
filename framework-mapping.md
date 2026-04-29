@@ -18,9 +18,9 @@ The project is owned by Ashley Scruse and produces a publishable paper. The fram
 
 | Stage | Status | Artifact in this Repo | Notes |
 |---|---|---|---|
-| 1. Ideation | Complete | `README.md`, `internal-spec.md` | Question, gap, data sources, and target venues all defined |
-| 2. Design | In progress | `internal-spec.md` (data joining, feature engineering, models) | Geographic scope and primary outcome variable still open |
-| 3. Compute | Not started | `scripts/`, `notebooks/` (empty) | Awaiting design decisions and API key registrations |
+| 1. Ideation | **Closed 2026-04-29** | `README.md`, `internal-spec.md`, `process-log.md` Stage 1 section | All 7 data sources smoke-tested; FIPS consistency verified; hard line passed |
+| 2. Design | In progress | `internal-spec.md` (data joining, feature engineering, models) | Geographic scope and primary outcome variable open; 20K MPA vs county-FIPS decision is the pivotal one |
+| 3. Compute | Not started | `scripts/`, `notebooks/` (empty) | Awaiting Stage 2 design decisions |
 | 4. Analysis | Not started | `results/` (empty) | |
 | 5. Publication | Not started | (TBD) | Target venues identified in `internal-spec.md` |
 
@@ -39,7 +39,14 @@ Recorded as they emerge. Each entry: stage, observation, recommendation for the 
 
 ### Stage 1 (Ideation)
 
-_(none yet)_
+**Observation 1.1 — "Viable data" must mean smoke-tested, not documented.** Of seven data sources documented in the spec, four had inaccuracies that only surfaced during smoke testing (CDC Tracking Network registration mechanism, PLACES temporal coverage, EPA EJScreen primary URL, CDC Tracking Network geography). None blocked the project, but all would have wasted Stage 3 time if discovered then.
+**Recommendation for the framework:** strengthen the Stage 1 hard line language. "Confirmed viable data" should explicitly require successful smoke tests for each declared source, not just a written list of URLs and join keys.
+
+**Observation 1.2 — Smoke-test cost is low compared to the cost of skipping it.** All seven sources verified in under two hours. Workshop participants should be told that skipping smoke tests to "save time" routinely costs days at Stage 3.
+**Recommendation for the framework:** add a templated smoke-test checklist to the Ideation curriculum materials, mirroring the structure used in this project's `process-log.md` Stage 1 section.
+
+**Observation 1.3 — "Process log" works as a case-study artifact.** Capturing decisions, friction points, and smoke-test outputs in real time produced a usable case-study record without retroactive reconstruction.
+**Recommendation for the framework:** add `process-log.md` (or equivalent) to the Stage 1 deliverables list, alongside the existing one-page research brief.
 
 ### Stage 2 (Design)
 
