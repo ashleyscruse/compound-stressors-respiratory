@@ -17,8 +17,8 @@ A chronological record of the concrete steps taken to execute this project, orga
 
 ### API key registrations (background, takes 1-2 days to issue)
 
-- [ ] EPA AQS API key — register at https://aqs.epa.gov/data/api/signup
-- [ ] CDC Tracking Network API token — register at https://ephtracking.cdc.gov/apigateway/api/v1/register
+- [x] EPA AQS API key — register by visiting `https://aqs.epa.gov/data/api/signup?email=YOUR_EMAIL` (the email must be a URL parameter, not a form field; key arrives by email within ~1 minute). **Done 2026-04-29; key stored in local `.env` (not committed).**
+- [x] CDC Tracking Network API token — **token is OPTIONAL, not required.** No web registration form. Email `nephtrackingsupport@cdc.gov` to request a token if expanded access is needed later. Spec doc had this wrong.
 - [ ] Census API key — register at https://api.census.gov/data/key_signup.html
 
 ### Smoke tests for keyless sources
@@ -31,7 +31,7 @@ A chronological record of the concrete steps taken to execute this project, orga
 ### Smoke tests for keyed sources (run after keys arrive)
 
 - [ ] EPA AQS API: one daily call for PM2.5, one state, one date; verify response shape
-- [ ] CDC Tracking Network: one query for asthma ED visits, one state; verify response and check whether county-level data is exposed
+- [x] CDC Tracking Network: one query for asthma ED visits, one state; verify response and check whether county-level data is exposed. **Done 2026-04-29.** Findings: API reachable without token; asthma ED visits available (indicator 90, measure 902); **only at "20K Minimum Population Area" geography, not standard county FIPS** (CDC privacy aggregation). Decision to make in Stage 2: keep ED visits as primary outcome and aggregate exposure data to 20K MPA, or switch primary outcome to CDC PLACES asthma prevalence (county FIPS).
 - [ ] Census ACS API: one call for population and poverty rate, one state; verify FIPS structure
 
 ### Cross-source verification
@@ -46,7 +46,11 @@ A chronological record of the concrete steps taken to execute this project, orga
 
 **Notes:**
 
-_(record what worked, what failed, what surprised you as you check items off)_
+**2026-04-29:**
+- EPA AQS registration: signup endpoint requires email as URL query parameter, not a form field. Spec doc (`?email=YOUR_EMAIL`) was correct format but I almost missed it. Updated process-log to be explicit.
+- CDC Tracking Network registration: the URL listed in the spec (`https://ephtracking.cdc.gov/apigateway/api/v1/register`) is actually an API endpoint, not a registration form. Hitting it returned a 400. Real path: token is OPTIONAL (most endpoints work without it), and to request one you email `nephtrackingsupport@cdc.gov`. Spec needs updating.
+- CDC Tracking Network smoke test: API reachable, asthma ED visits exposed, but only at "20K Minimum Population Area" — not standard county FIPS. CDC privacy aggregation. This is a Stage 2 decision point captured in Stage 2 Open Decisions.
+- Found CDC API user guide PDF (downloaded to `references/`, gitignored). Indispensable for understanding the Content Area → Indicator → Measure hierarchy.
 
 ---
 
@@ -57,7 +61,7 @@ _(record what worked, what failed, what surprised you as you check items off)_
 ### Open decisions
 
 - [ ] Geographic scope: regional (e.g., Southeast US, ~4 states) vs. national
-- [ ] Primary outcome variable: respiratory mortality (CDC WONDER) vs. asthma prevalence (CDC PLACES) vs. asthma ED visits (CDC Tracking Network, if API access granted)
+- [ ] **Primary outcome variable + matching geography:** options are (a) CDC Tracking Network asthma ED visits at "20K Minimum Population Area" (annual, age-adjusted, requires aggregating exposure data up from county FIPS to MPA via crosswalk), (b) CDC PLACES asthma prevalence at county FIPS (cleaner pipeline but a stock measure, less responsive to short-term compound exposure events), or (c) CDC WONDER respiratory mortality at county FIPS (long-term signal but rare events with suppression). This decision drives the geographic resolution of the entire pipeline.
 - [ ] Time window: confirm 2018-2022 (5 years) is the right period given data coverage and the working from home / pandemic-era caveats
 
 ### Pipeline plan
