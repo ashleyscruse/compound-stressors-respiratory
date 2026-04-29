@@ -1,0 +1,69 @@
+# Byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints
+
+# macOS
+.DS_Store
+
+# VS Code / IDEs
+.vscode/
+.idea/
+
+# API keys and credentials
+.env.local
+.env.*.local
+secrets.yaml
+credentials.json
+.kaggle/
+kaggle.json
+*.api_key
+
+# Data files (don't commit large datasets)
+data/raw/
+data/processed/
+data/external/
+*.zip
+*.tar
+*.tar.gz
+
+# Keep directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Model artifacts
+*.pt
+*.pth
+*.onnx
+*.pkl
+*.joblib
+
+# Results (keep structure, ignore large outputs)
+results/figures/*.png
+results/figures/*.pdf
+results/metrics/*.csv
+!results/figures/.gitkeep
+!results/metrics/.gitkeep
+!results/reports/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# HPC / Slurm
+*.out
+*.err
+slurm-*.out
+
+# Local notes
+.notes/
