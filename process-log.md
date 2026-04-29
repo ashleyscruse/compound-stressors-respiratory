@@ -8,6 +8,8 @@ A chronological record of the concrete steps taken to execute this project, orga
 
 **Goal:** confirm gap, viable data, target venue, and a one-sentence research question. Cross the hard line into Stage 2 only when all four are verified.
 
+**Scope note:** "Smoke tests" in this stage pulled small verification slices only (typically one state, one year, one day, or one snapshot per source). Their job is to answer "can we get this data, and does it look the way we expect?" — not "do we have all the data we need." Full multi-year, multi-state data collection happens in Stage 3, after Stage 2 design decisions fix the geographic scope and time window.
+
 ### On-paper deliverables
 
 - [x] Research question stated in one sentence (`README.md`)
