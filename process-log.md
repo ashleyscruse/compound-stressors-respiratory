@@ -73,7 +73,7 @@ Process observations worth flagging for the case study:
 
 - [x] **Primary outcome variable + matching geography (decided 2026-04-29):** **Two-pipeline design.** Primary analysis uses CDC WONDER respiratory mortality (J00-J98) at county FIPS, national, 2018-2024. Secondary triangulation analysis uses CDC Tracking Network asthma ED visits (measure 902) at 20K MPA across the 8 states with available data (CT, MI, MO, OR, TN, UT, VT, WI). Same compound-exposure features feed both pipelines. Paper structure: primary mortality result + ED-visit triangulation showing the same pattern holds for acute events where observable. Decision rationale: the 8-state limitation on Tracking Network ED visits made option A non-viable as a standalone national study, but the data is too valuable to discard entirely. CDC PLACES becomes a supplementary cross-sectional comparator if useful.
 - [x] **Geographic scope (decided implicitly by outcome decision):** national for primary mortality analysis (~3,143 counties); 8 states for secondary ED-visit analysis (~1,174 MPAs).
-- [ ] **Time window:** confirm 2018-2024 (7 years, the full WONDER + Tracking Network coverage available) versus the original spec's 2018-2022. Wider window gives more statistical power for compound exposure events but spans more pandemic-era distortion.
+- [x] **Time window (decided 2026-04-29):** **2018-2024 (7 years)** for both pipelines. Maximum statistical power for rare compound-exposure events. Pandemic-era distortion (2020-2022) addressed via a `pandemic_period` indicator covariate in the model rather than excluding years. Stage 4 must verify that J00-J98 excludes COVID deaths (U07.1).
 
 ### Pipeline plan
 
