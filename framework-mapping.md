@@ -18,11 +18,11 @@ The project is owned by Ashley Scruse and produces a publishable paper. The fram
 
 | Stage | Status | Artifact in this Repo | Notes |
 |---|---|---|---|
-| 1. Ideation | Complete | `README.md`, `nairr-project.md` | Question, gap, data sources, and target venues all defined |
-| 2. Design | In progress | `nairr-project.md` (data joining, feature engineering, models) | Geographic scope and primary outcome variable still open |
+| 1. Ideation | Complete | `README.md`, `internal-spec.md` | Question, gap, data sources, and target venues all defined |
+| 2. Design | In progress | `internal-spec.md` (data joining, feature engineering, models) | Geographic scope and primary outcome variable still open |
 | 3. Compute | Not started | `scripts/`, `notebooks/` (empty) | Awaiting design decisions and API key registrations |
 | 4. Analysis | Not started | `results/` (empty) | |
-| 5. Publication | Not started | (TBD) | Target venues identified in `nairr-project.md` |
+| 5. Publication | Not started | (TBD) | Target venues identified in `internal-spec.md` |
 
 ## Hard Lines
 

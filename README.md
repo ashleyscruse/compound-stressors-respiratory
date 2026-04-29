@@ -33,7 +33,7 @@ Do compound environmental stressors (air pollution + extreme heat + humidity occ
 
 ## Data
 
-All sources are publicly available and require no IRB review. Detailed data acquisition notes live in [nairr-project.md](nairr-project.md).
+All sources are publicly available and require no IRB review. Detailed data acquisition notes live in [internal-spec.md](internal-spec.md).
 
 | Source | Variable Type | Resolution |
 |---|---|---|
